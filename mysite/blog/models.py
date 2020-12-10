@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.urls import reverse
 
 # Создание своего менеджера модели, вместо Objects который по-умолчанию
 class PublishedManager(models.Manager):
