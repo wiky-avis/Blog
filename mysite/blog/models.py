@@ -27,8 +27,20 @@ class Post(models.Model):
     status = models.CharField(
         max_length=10, choices=STATUS_CHOICES, default='draft'
         )
+    
     objects = models.Manager() # Менеджер по умолчанию.
     published = PublishedManager() # Наш новый менеджер.
+
+    # В Django есть соглашение о том, что метод модели get_absolute_url() 
+    # должен возвращать канонический URL объекта
+    def get_absolute_url(self):
+        return reverse(
+            'blog:post_detail', args=[self.publish.year, 
+            self.publish.month, self.publish.day, self.slug]
+            )
+        # Мы будем использовать метод get_absolute_url() в HTML-шаблонах, 
+        # чтобы получать ссылку на статью.
+
 
     class Meta:
         ordering = ('-publish',)
