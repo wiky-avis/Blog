@@ -2,6 +2,13 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 
+# Создание своего менеджера модели, вместо Objects который по-умолчанию
+class PublishedManager(models.Manager):
+    # Метод  менеджера  get_queryset()  возвращает  QuerySet,  который  будет 
+    # выполняться.
+    def get_queryset(self):
+        return super().get_queryset().filter(status='published')
+
 
 class Post(models.Model):
     STATUS_CHOICES = (
@@ -20,6 +27,8 @@ class Post(models.Model):
     status = models.CharField(
         max_length=10, choices=STATUS_CHOICES, default='draft'
         )
+    objects = models.Manager() # Менеджер по умолчанию.
+    published = PublishedManager() # Наш новый менеджер.
 
     class Meta:
         ordering = ('-publish',)
