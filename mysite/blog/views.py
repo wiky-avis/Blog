@@ -10,6 +10,9 @@ from .forms import EmailPostForm, CommentForm
 from django.core.mail import send_mail
 # теги
 from taggit.models import Tag
+# Это функция агрегации Count из Django. Она позволяет выполнять агрегирующий 
+# запрос для подсчета количества тегов на уровне базы данных.
+from django.db.models import Count
 
 
 
@@ -74,14 +77,31 @@ def post_detail(request, year, month, day, post):
             new_comment.save()
     else:
         comment_form = CommentForm()
-
+    
+    # Формирование списка похожих статей.
+    # Получает все ID тегов текущей статьи. Метод QuerySet’а values_list() 
+    # возвращает кортежи со значениями заданного поля. Мы указали flat=True, 
+    # чтобы получить «плоский» список вида [1, 2, 3, ...];
+    post_tags_ids = post.tags.values_list('id', flat=True)
+    # получает все статьи, содержащие хоть один тег из полученных ранее, 
+    # исключая текущую статью;
+    similar_posts = Post.published.filter(
+        tags__in=post_tags_ids).exclude(id=post.id)
+    # Использует функцию агрегации Count для формирования вычисляемого поля  
+    # same_tags, которое  содержит  определенное количество совпадающих тегов;
+    # Сортирует список опубликованных статей в убывающем порядке по количеству 
+    # совпадающих тегов для отображения первыми максимально похожих статей и 
+    # делает срез результата для отображения только четырех статей.
+    similar_posts = similar_posts.annotate(
+        same_tags=Count('tags')).order_by('-same_tags', '-publish')[:4]
 
     return render(
         request, 'blog/post/detail.html', 
         {'post': post,
         'comments': comments,
         'new_comment': new_comment, 
-        'comment_form': comment_form}
+        'comment_form': comment_form,
+        'similar_posts': similar_posts}
         )
 
 
