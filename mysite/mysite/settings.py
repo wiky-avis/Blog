@@ -119,3 +119,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'wikulya87@gmail.com'
+EMAIL_HOST_PASSWORD = '*********' # мой пароль от почты (вставить когда нужно будет проверить отправку писем)
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
