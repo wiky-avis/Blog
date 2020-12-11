@@ -1,12 +1,12 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Post
+from .models import Post, Comment
 # пагинатор
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 # ListView базовый класс обработчика списков позволяет отображать несколько 
 # объектов любого типа.
 from django.views.generic import ListView
 # форма для отправки писем
-from .forms import EmailPostForm
+from .forms import EmailPostForm, CommentForm
 from django.core.mail import send_mail
 
 
@@ -41,7 +41,37 @@ def post_detail(request, year, month, day, post):
         Post, slug=post, status='published', publish__year=year, 
         publish__month=month, publish__day=day
         ) # Если объекта не существует, будет поднята ошибка 404
-    return render(request, 'blog/post/detail.html', {'post': post})
+
+    # добавляем комментарии на страницу
+    # Список активных комментариев для этой статьи.
+    # Мы создали объект QuerySet, используя объект статьи post и менеджер 
+    # связанных объектов comments, определенный в модели Comment в аргументе 
+    # related_name.
+    comments = post.comments.filter(active=True)
+    new_comment = None
+    if request.method == 'POST':
+        # Bнициализация формы при GET-запросе.Пользователь отправил комментарий.
+        comment_form = CommentForm(data=request.POST)
+        # Если же получаем POST-запрос, то заполняем форму данными из запроса 
+        # и валидируем ее методом is_valid()
+        if comment_form.is_valid():
+            # Создаем комментарий, но пока не сохраняем в базе данных.
+            new_comment = comment_form.save(commit=False)
+            # Привязываем комментарий к текущей статье.
+            new_comment.post = post
+            # Сохраняем комментарий в базе данных.
+            new_comment.save()
+    else:
+        comment_form = CommentForm()
+
+
+    return render(
+        request, 'blog/post/detail.html', 
+        {'post': post,
+        'comments': comments,
+        'new_comment': new_comment, 
+        'comment_form': comment_form}
+        )
 
 
 # вместо обработчика post_list
