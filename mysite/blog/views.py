@@ -8,32 +8,43 @@ from django.views.generic import ListView
 # форма для отправки писем
 from .forms import EmailPostForm, CommentForm
 from django.core.mail import send_mail
+# теги
+from taggit.models import Tag
 
 
-# вместо этой функции написали class PostListView, который намного меньше по 
-# объему кода
-# # обработчик для отображения списка статей
-# def post_list(request):
-#     posts = Post.published.all() # одно и то же, что и Post.objects.all()
-#     # добавляем пагинатор
-#     object_list = Post.published.all()
-#     paginator = Paginator(object_list, 3) # По 3 статьи на каждой странице.
-#     page = request.GET.get('page') #  извлекаем  из  запроса  GET-параметр  
-#     # page,  который  указывает  текущую страницу
-#     try:
-#         posts = paginator.page(page) # получаем список объектов на нужной 
-#         # странице с помощью метода page() класса Paginator
-#     except PageNotAnInteger:
-#         # Если страница не является целым числом, возвращаем первую страницу.
-#         posts = paginator.page(1)
-#     except EmptyPage:
-#         # Если номер страницы больше, чем общее количество страниц, 
-#         # возвращаем последнюю.
-#         posts = paginator.page(paginator.num_pages)
-#     return render(
-#         request, 'blog/post/list.html', {'page': page, 'posts': posts})  
-#     # передаем номер страницы и полученные объекты в шаблон.
-#     # функция render() для  формирования HTML-шаблона
+
+# обработчик для отображения списка статей
+def post_list(request, tag_slug=None):
+    posts = Post.published.all() # одно и то же, что и Post.objects.all()
+    # добавляем пагинатор
+    object_list = Post.published.all()
+
+    #  возможность фильтровать список статей по определенному тегу
+    tag = None
+
+    if tag_slug:
+        tag = get_object_or_404(Tag, slug=tag_slug)
+        object_list = object_list.filter(tags__in=[tag])
+    
+    paginator = Paginator(object_list, 3) # По 3 статьи на каждой странице.
+    page = request.GET.get('page') #  извлекаем  из  запроса  GET-параметр  
+    # page,  который  указывает  текущую страницу
+    try:
+        posts = paginator.page(page) # получаем список объектов на нужной 
+        # странице с помощью метода page() класса Paginator
+    except PageNotAnInteger:
+        # Если страница не является целым числом, возвращаем первую страницу.
+        posts = paginator.page(1)
+    except EmptyPage:
+        # Если номер страницы больше, чем общее количество страниц, 
+        # возвращаем последнюю.
+        posts = paginator.page(paginator.num_pages)
+    return render(
+        request, 'blog/post/list.html', 
+        {'page': page, 'posts': posts, 'tag': tag}
+        )  
+    # передаем номер страницы и полученные объекты в шаблон.
+    # функция render() для  формирования HTML-шаблона
 
 # обработчик  для  отображения  статьи
 def post_detail(request, year, month, day, post):
@@ -74,7 +85,7 @@ def post_detail(request, year, month, day, post):
         )
 
 
-# вместо обработчика post_list
+# класс-обработчик для отображения списка статей
 class PostListView(ListView):
     #переопределенный  QuerySet  модели  вместо  получения всех объектов
     queryset = Post.published.all()
