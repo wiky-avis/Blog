@@ -2,6 +2,8 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.urls import reverse
+# сторонее приложение
+from taggit.managers import TaggableManager
 
 # Создание своего менеджера модели, вместо Objects который по-умолчанию
 class PublishedManager(models.Manager):
@@ -31,6 +33,10 @@ class Post(models.Model):
     
     objects = models.Manager() # Менеджер по умолчанию.
     published = PublishedManager() # Наш новый менеджер.
+    
+    # Менеджер tags позволит нам добавлять, получать список и удалять теги для 
+    # объектов статей.
+    tags = TaggableManager()
 
     # В Django есть соглашение о том, что метод модели get_absolute_url() 
     # должен возвращать канонический URL объекта

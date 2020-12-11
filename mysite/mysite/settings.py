@@ -37,7 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # мое приложение
     'blog.apps.BlogConfig',
+    # стороннее приложение, которое добавляет модель Tag и менеджер для легкого 
+    # тегирования любого объекта
+    'taggit',
 ]
 
 MIDDLEWARE = [
