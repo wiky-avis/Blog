@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+SITE_ID = 1
 
 # Application definition
 
@@ -42,6 +43,9 @@ INSTALLED_APPS = [
     # стороннее приложение, которое добавляет модель Tag и менеджер для легкого 
     # тегирования любого объекта
     'taggit',
+    # карта сайта
+    'django.contrib.sites',
+    'django.contrib.sitemaps',
 ]
 
 MIDDLEWARE = [

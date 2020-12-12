@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 
+
 app_name = 'blog'
 
 urlpatterns = [
@@ -14,4 +15,5 @@ urlpatterns = [
         ),
     # для обработчика оправки писем
     path('<int:post_id>/share/', views.post_share, name='post_share'),
+
 ]
