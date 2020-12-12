@@ -1,8 +1,10 @@
 # Создание собственных тегов
-
 from django import template
 from ..models import Post
 from django.db.models import Count
+# Создание собственных фильтров
+from django.utils.safestring import mark_safe
+import markdown
 
 
 register = template.Library()
@@ -36,3 +38,10 @@ def get_most_commented_posts(count=5):
     return Post.published.annotate(
         total_comments=Count('comments')
         ).order_by('-total_comments')[:count]
+
+
+# добавляет возможность заполнять тело статьи с помощью форматирования Markdown, которое 
+# будет формировать корректный HTML при отображении статьи.
+@register.filter(name='markdown')
+def markdown_format(text):
+    return mark_safe(markdown.markdown(text))
