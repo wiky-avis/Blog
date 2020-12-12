@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+# RSS для статей
+from .feeds import LatestPostsFeed
 
 
 app_name = 'blog'
@@ -15,5 +17,6 @@ urlpatterns = [
         ),
     # для обработчика оправки писем
     path('<int:post_id>/share/', views.post_share, name='post_share'),
-
+    # RSS
+    path('feed/', LatestPostsFeed(), name='post_feed'),
 ]
