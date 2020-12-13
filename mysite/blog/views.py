@@ -177,10 +177,16 @@ def post_search(request):
     # объекта SearchVector по двум полям: title и body
         if form.is_valid():
             query = form.cleaned_data['query']
+            # В этом фрагменте мы создаем объект SearchQuery, фильтруем с его 
+            # помощью результаты и используем SearchRank для ранжирования статей.
+            # PostgreSQL предоставляет функцию ранжирования, которая сортирует 
+            # результаты на основе того, как часто встречаются фразы поиска и 
+            # как близко друг к другу они находятся.
+            searc_vector = SearchVector('title', 'body')
+            search_query = SearchQuery(query)
             results = Post.objects.annotate(
-                search=SearchVector(
-                    'title', 'body'),
-                    ).filter(search=query)
+                search=searc_vector, rank=SearchRank(searc_vector, search_query)
+                ).filter(search=search_query).order_by('-rank')
     return render(
         request,'blog/post/search.html', 
         {'form': form,'query': query,'results': results}
