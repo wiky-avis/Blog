@@ -182,11 +182,18 @@ def post_search(request):
             # PostgreSQL предоставляет функцию ранжирования, которая сортирует 
             # результаты на основе того, как часто встречаются фразы поиска и 
             # как близко друг к другу они находятся.
-            searc_vector = SearchVector('title', 'body')
+            # можно настроить поиск так, чтобы статьи с совпадениями в заголовке 
+            # были в большем приоритете перед статьями с совпадениями в содержимом.
+            # В этом примере мы применяем векторы по полям title и body с разным 
+            # весом. По умолчанию используются веса D, C, B и A, которые соответствуют 
+            # числам 0.1, 0.2, 0.4 и 1. Мы применили вес 1.0 для вектора по полю 
+            # title и 0.4 – для вектора по полю body. В конце отбрасываем статьи 
+            # с низким рангом и показываем только те, чей ранг выше 0.3.
+            searc_vector = SearchVector('title', weight='A') + SearchVector('body', weight='B')
             search_query = SearchQuery(query)
             results = Post.objects.annotate(
                 search=searc_vector, rank=SearchRank(searc_vector, search_query)
-                ).filter(search=search_query).order_by('-rank')
+                ).filter(rank__gte=0.3).order_by('-rank')
     return render(
         request,'blog/post/search.html', 
         {'form': form,'query': query,'results': results}
