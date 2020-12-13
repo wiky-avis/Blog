@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     # карта сайта
     'django.contrib.sites',
     'django.contrib.sitemaps',
+    # Простые поисковые запросы
+    'django.contrib.postgres',
 ]
 
 MIDDLEWARE = [
