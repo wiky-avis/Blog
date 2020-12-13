@@ -5,8 +5,10 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 # ListView базовый класс обработчика списков позволяет отображать несколько 
 # объектов любого типа.
 from django.views.generic import ListView
+# Обработчик поиска
+from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank, TrigramSimilarity
 # форма для отправки писем
-from .forms import EmailPostForm, CommentForm
+from .forms import EmailPostForm, CommentForm, SearchForm
 from django.core.mail import send_mail
 # теги
 from taggit.models import Tag
@@ -157,3 +159,29 @@ def post_share(request, post_id):
     else:
         form = EmailPostForm()
     return render(request, 'blog/post/share.html', {'post': post, 'form': form, 'sent': sent})
+
+# мы создаем объект формы SearchForm. Поисковый запрос будет отправляться 
+# методом GET, чтобы результирующий URL содержал в себе фразу  поиска  в  
+# параметре  query.
+def post_search(request):
+    form = SearchForm()
+    query = None
+    results = []
+    #Для того  чтобы  определить,  отправлена ли форма для 
+    # поиска, обращаемся к параметру запроса query из словаря request.GET. 
+    # Когда запрос отправлен, мы инициируем объект формы с параметрами из 
+    # request.GET, проверяем корректность введенных данных.
+    if 'query' in request.GET:
+        form = SearchForm(request.GET)
+    # Если форма валидна,формируем запрос на поиск статей с использованием 
+    # объекта SearchVector по двум полям: title и body
+        if form.is_valid():
+            query = form.cleaned_data['query']
+            results = Post.objects.annotate(
+                search=SearchVector(
+                    'title', 'body'),
+                    ).filter(search=query)
+    return render(
+        request,'blog/post/search.html', 
+        {'form': form,'query': query,'results': results}
+        )

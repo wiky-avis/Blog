@@ -19,4 +19,6 @@ urlpatterns = [
     path('<int:post_id>/share/', views.post_share, name='post_share'),
     # RSS
     path('feed/', LatestPostsFeed(), name='post_feed'),
+    # поисковые запросы
+    path('search/', views.post_search, name='post_search'),
 ]
