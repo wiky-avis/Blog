@@ -10,7 +10,7 @@ from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 # форма для отправки писем
 from .forms import EmailPostForm, CommentForm, SearchForm
 from django.core.mail import send_mail
-# теги
+# теги. Чтобы использовать теги нужно установить pip install django_taggit
 from taggit.models import Tag
 # Это функция агрегации Count из Django. Она позволяет выполнять агрегирующий 
 # запрос для подсчета количества тегов на уровне базы данных.
