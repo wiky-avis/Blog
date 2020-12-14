@@ -25,6 +25,11 @@ sitemaps = {'posts': PostSitemap,}
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('blog.urls', namespace='blog')),
+    # регистрация и авторизация
+    path('auth/', include('users.urls')),
+    #  если нужного шаблона для /auth не нашлось в файле users.urls — 
+    #  ищем совпадения в файле django.contrib.auth.urls
+    path("auth/", include("django.contrib.auth.urls")),
     # карта сайта
     path(
         'sitemap.xml', sitemap, 

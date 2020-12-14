@@ -1,0 +1,50 @@
+{% extends "blog/base.html" %}
+{% load blog_tags %}
+{# загружаем фильтр #}
+{% load user_filters %}
+
+{% block title %}Зарегистрироваться{% endblock %}
+{% block content %}
+{# загружаем фильтр #}
+{% load user_filters %}
+
+<div>
+  <div>
+      <div>
+          <div>Зарегистрироваться</div>
+          <div>
+
+                  {% for error in form.errors %}
+                      <div>
+                          {{ error }}
+                      </div>
+                  {% endfor %}
+
+
+              <form method="post" action="{% url 'signup' %}">
+                  {% csrf_token %}
+
+                  {% for field in form %}
+                      <div aria-required={% if field.field.required %}"true"{% else %}"false"{% endif %}>
+                              <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span>*</span>{% endif %}</label>
+                              <div>
+                                  {{ field|addclass:"form-control" }}
+                                  {% if field.help_text %}
+                                  <small id="{{ field.id_for_label }}-help" >{{ field.help_text|safe }}</small>
+                                  {% endif %}
+                              </div>
+                      </div>
+                  {% endfor %}
+
+                  <div>              
+                          <button type="submit">
+                              Зарегистрироваться
+                          </button>
+                  </div>
+              </form>
+          </div> <!-- card body -->
+      </div> <!-- card -->
+  </div> <!-- col -->
+</div> <!-- row -->
+
+{% endblock %}

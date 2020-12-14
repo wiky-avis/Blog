@@ -1,0 +1,13 @@
+<nav style="background-color: #e3f2fd;">
+    <a href="/"><span style="color:red">Bl</span>og</a>
+    <nav>
+        {% if user.is_authenticated %}
+        Пользователь: {{ user.username }}.
+        <a href="{% url 'password_change' %}">Изменить пароль</a>
+        <a href="{% url 'logout' %}">Выйти</a>
+        {% else %}
+        <a href="{% url 'login' %}">Войти</a> |
+        <a href="{% url 'signup' %}">Регистрация</a>
+        {% endif %}
+    </nav>
+</nav>

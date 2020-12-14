@@ -32,6 +32,9 @@ SITE_ID = 1
 # Application definition
 
 INSTALLED_APPS = [
+    # мое приложение
+    'users',
+    # стандартные приложения
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -93,6 +96,7 @@ DATABASES = {
     'USER': 'postgres',
     'PASSWORD': 'blog1234',
 	'HOST': '127.0.0.1',
+    'PORT': '5433',
     }
 }
 
@@ -142,3 +146,9 @@ EMAIL_HOST_USER = 'wikulya87@gmail.com'
 EMAIL_HOST_PASSWORD = '*********' # мой пароль от почты (вставить когда нужно будет проверить отправку писем)
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+
+
+# Login
+LOGIN_URL = "/auth/login/"
+LOGIN_REDIRECT_URL = "blog:post_list" 
+# LOGOUT_REDIRECT_URL = "index"

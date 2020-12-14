@@ -1,0 +1,53 @@
+{% extends "blog/base.html" %}
+{% load blog_tags %}
+
+{% block content %}
+{# загружаем фильтр #}
+{% load user_filters %}
+<div>
+    <div>
+      <div>
+        <div>Войти на сайт</div>
+        <div>
+          {% if form.errors %}
+          <div>
+            Имя пользователя и пароль не совпадают. Введите правильные данные.
+          </div>
+          {% endif %}
+  
+          <div>
+            Пожалуйста, авторизуйтесь.
+          </div>
+  
+          <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+            <div>
+                <label for="{{ form.username.id_for_label }}" class="col-md-4 col-form-label text-md-right">Имя пользователя</label>
+                <div>
+                    {{ form.username|addclass:"form-control" }}
+                </div>
+            </div>
+  
+            <div>
+                <label for="{{ form.password.id_for_label }}" class="col-md-4 col-form-label text-md-right">Пароль</label>
+                <div>
+                    {{ form.password|addclass:"form-control" }}
+                </div>
+            </div>
+  
+            <div>              
+                <button type="submit">
+                  Войти
+                </button>
+                <a href="{% url 'password_reset' %}">
+                  Забыли пароль?
+                </a>
+            </div>
+          </form>
+        </div> <!-- card body -->
+      </div> <!-- card -->
+    </div> <!-- col -->
+  </div> <!-- row -->
+  
+  {% endblock %}
