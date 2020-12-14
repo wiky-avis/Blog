@@ -5,10 +5,12 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 # ListView базовый класс обработчика списков позволяет отображать несколько 
 # объектов любого типа.
 from django.views.generic import ListView
+# Обработчик поиска
+from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank, TrigramSimilarity
 # форма для отправки писем
-from .forms import EmailPostForm, CommentForm
+from .forms import EmailPostForm, CommentForm, SearchForm
 from django.core.mail import send_mail
-# теги
+# теги. Чтобы использовать теги нужно установить pip install django_taggit
 from taggit.models import Tag
 # Это функция агрегации Count из Django. Она позволяет выполнять агрегирующий 
 # запрос для подсчета количества тегов на уровне базы данных.
@@ -157,3 +159,42 @@ def post_share(request, post_id):
     else:
         form = EmailPostForm()
     return render(request, 'blog/post/share.html', {'post': post, 'form': form, 'sent': sent})
+
+# мы создаем объект формы SearchForm. Поисковый запрос будет отправляться 
+# методом GET, чтобы результирующий URL содержал в себе фразу  поиска  в  
+# параметре  query.
+def post_search(request):
+    form = SearchForm()
+    query = None
+    results = []
+    #Для того  чтобы  определить,  отправлена ли форма для 
+    # поиска, обращаемся к параметру запроса query из словаря request.GET. 
+    # Когда запрос отправлен, мы инициируем объект формы с параметрами из 
+    # request.GET, проверяем корректность введенных данных.
+    if 'query' in request.GET:
+        form = SearchForm(request.GET)
+    # Если форма валидна,формируем запрос на поиск статей с использованием 
+    # объекта SearchVector по двум полям: title и body
+        if form.is_valid():
+            query = form.cleaned_data['query']
+            # В этом фрагменте мы создаем объект SearchQuery, фильтруем с его 
+            # помощью результаты и используем SearchRank для ранжирования статей.
+            # PostgreSQL предоставляет функцию ранжирования, которая сортирует 
+            # результаты на основе того, как часто встречаются фразы поиска и 
+            # как близко друг к другу они находятся.
+            # можно настроить поиск так, чтобы статьи с совпадениями в заголовке 
+            # были в большем приоритете перед статьями с совпадениями в содержимом.
+            # В этом примере мы применяем векторы по полям title и body с разным 
+            # весом. По умолчанию используются веса D, C, B и A, которые соответствуют 
+            # числам 0.1, 0.2, 0.4 и 1. Мы применили вес 1.0 для вектора по полю 
+            # title и 0.4 – для вектора по полю body. В конце отбрасываем статьи 
+            # с низким рангом и показываем только те, чей ранг выше 0.3.
+            searc_vector = SearchVector('title', weight='A') + SearchVector('body', weight='B')
+            search_query = SearchQuery(query)
+            results = Post.objects.annotate(
+                search=searc_vector, rank=SearchRank(searc_vector, search_query)
+                ).filter(rank__gte=0.3).order_by('-rank')
+    return render(
+        request,'blog/post/search.html', 
+        {'form': form,'query': query,'results': results}
+        )

@@ -4,6 +4,7 @@ from ..models import Post
 from django.db.models import Count
 # Создание собственных фильтров
 from django.utils.safestring import mark_safe
+# нужно установить pip install Markdown
 import markdown
 
 
